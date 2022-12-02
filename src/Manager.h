@@ -6,11 +6,21 @@
 #define VDSPROJECT_MANAGER_H
 
 #include "ManagerInterface.h"
+#include <map>
 
 namespace ClassProject {
+    struct Node {
+        BDD_ID high;
+        BDD_ID low;
+        BDD_ID top_var;
+
+        static Node True();
+        static Node False();
+    };
+
     class Group7Manager : public ClassProject::ManagerInterface {
     public:
-        Group7Manager() = default;
+        Group7Manager();
         ~Group7Manager() = default;
 
         // Creates a new variable with the given label and returns its ID
@@ -86,6 +96,9 @@ namespace ClassProject {
 
         // Returns the number of nodes currently existing in the unique table of the Manager class
         size_t uniqueTableSize() override;
+
+    public:
+        std::map<BDD_ID, Node> nodes;
     };
 }
 
