@@ -19,6 +19,9 @@ void ManagerTester::TearDownTestSuite() {
 }
 
 void ManagerTester::SetUp() {
+    if (manager != nullptr)
+        delete manager;
+    manager = new ClassProject::Group7Manager;
 }
 
 void ManagerTester::TearDown() {
