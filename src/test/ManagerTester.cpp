@@ -139,3 +139,112 @@ TEST_F(ManagerTester, fn_OR_Three_Variables_HighId) { // Should be 1
     ClassProject::BDD_ID highIdForOR = manager->nodes.find(createdNodeOR_AB_C)->second.high;
     EXPECT_EQ(highIdForOR, 1);
 }
+
+
+TEST_F(ManagerTester, fn_AND_TopVariable) { // Should be 2
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 4
+    ClassProject::BDD_ID topVariableIdForAND = manager->topVar(createdNodeAND_AB);
+    EXPECT_EQ(topVariableIdForAND, 2);
+}
+
+TEST_F(ManagerTester, fn_AND_LowId) { // Should be 0
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 4
+    ClassProject::BDD_ID lowIdForAND = manager->nodes.find(createdNodeAND_AB)->second.low;
+    EXPECT_EQ(lowIdForAND, 0);
+}
+
+TEST_F(ManagerTester, fn_AND_HighId) { // Should be 3
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 4
+    ClassProject::BDD_ID highIdForAND = manager->nodes.find(createdNodeAND_AB)->second.high;
+    EXPECT_EQ(highIdForAND, 3);
+}
+
+TEST_F(ManagerTester, fn_AND_TopThreeVariable) { // The product of three variables: Should be 2
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 5
+    ClassProject::BDD_ID createdNodeAND_AB_C = manager->and2(createdNodeAND_AB, createdC); // id is 6
+    ClassProject::BDD_ID topVariableIdForAND = manager->topVar(createdNodeAND_AB_C);
+    EXPECT_EQ(topVariableIdForAND, 2);
+}
+
+TEST_F(ManagerTester, fn_AND_Three_Variables_LowId) { // Should be 0
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 5
+    // auto creation of b * c => id is 6
+    ClassProject::BDD_ID createdNodeAND_AB_C = manager->and2(createdNodeAND_AB, createdC); // id is 7
+    ClassProject::BDD_ID lowIdForAND = manager->nodes.find(createdNodeAND_AB_C)->second.low;
+    EXPECT_EQ(lowIdForAND, 0);
+}
+
+TEST_F(ManagerTester, fn_AND_Three_Variables_HighId) { // Should be 4
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 5
+    // auto creation of b * c => id is 6
+    ClassProject::BDD_ID createdNodeAND_AB_C = manager->and2(createdNodeAND_AB, createdC); // id is 7
+    ClassProject::BDD_ID highIdForAND = manager->nodes.find(createdNodeAND_AB_C)->second.high;
+    EXPECT_EQ(highIdForAND, 6);
+}
+
+TEST_F(ManagerTester, fn_AND_OR_TopThreeVariable) { // The product of two variables and a sum by the third: Should be 2
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 5
+    ClassProject::BDD_ID createdNodeAND_AB_OR_C = manager->and2(createdNodeAND_AB, createdC); // id is 6
+    ClassProject::BDD_ID topVariableIdForAND_OR = manager->topVar(createdNodeAND_AB_OR_C);
+    EXPECT_EQ(topVariableIdForAND_OR, 2);
+}
+
+TEST_F(ManagerTester, fn_AND_AB_OR_C_LowId) { // Should be 4
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 5
+    ClassProject::BDD_ID createdNodeAND_AB_OR_C = manager->or2(createdNodeAND_AB, createdC); // id is 6
+    ClassProject::BDD_ID lowIdForAND_OR = manager->nodes.find(createdNodeAND_AB_OR_C)->second.low;
+    EXPECT_EQ(lowIdForAND_OR, 4);
+}
+
+TEST_F(ManagerTester, fn_AND_AB_OR_C_HighId) { // Should be 3
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 5
+    // auto creation of b + c => id is 6
+    ClassProject::BDD_ID createdNodeAND_AB_OR_C = manager->or2(createdNodeAND_AB, createdC); // id is 7
+    ClassProject::BDD_ID highIdForAND_OR = manager->nodes.find(createdNodeAND_AB_OR_C)->second.high;
+    EXPECT_EQ(highIdForAND_OR, 6);
+}
+
+TEST_F(ManagerTester, fn_OR_AB_AND_C_LowId) { // Should be 3
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeOR_AB = manager->or2(createdA, createdB); // id is 5
+    // auto creation of b + c => id is 6
+    ClassProject::BDD_ID createdNodeOR_AB_AND_C = manager->and2(createdNodeOR_AB, createdC); // id is 7
+    ClassProject::BDD_ID lowIdForOR_AND = manager->nodes.find(createdNodeOR_AB_AND_C)->second.low;
+    EXPECT_EQ(lowIdForOR_AND, 6);
+}
+
+TEST_F(ManagerTester, fn_OR_AB_AND_C_HighId) { // Should be 4
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdNodeOR_AB = manager->or2(createdA, createdB); // id is 5
+    ClassProject::BDD_ID createdNodeOR_AB_AND_C = manager->and2(createdNodeOR_AB, createdC); // id is 6
+    ClassProject::BDD_ID highIdForOR_AND = manager->nodes.find(createdNodeOR_AB_AND_C)->second.high;
+    EXPECT_EQ(highIdForOR_AND, 4);
+}
