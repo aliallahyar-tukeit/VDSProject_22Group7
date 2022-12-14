@@ -13,6 +13,7 @@ namespace ClassProject {
         BDD_ID high;
         BDD_ID low;
         BDD_ID top_var;
+        std::string label;
 
         static Node True();
         static Node False();

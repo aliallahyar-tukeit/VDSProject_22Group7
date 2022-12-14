@@ -24,8 +24,11 @@ bool operator!=(const Node& firstNode, const Node& secondNode) // Check the ineq
            (firstNode.top_var != secondNode.top_var);
 }
 
-BDD_ID Group7Manager::createVar(const std::string &label) {
-    return 0;
+BDD_ID Group7Manager::createVar(const std::string &label) { // Single variable functions
+    BDD_ID new_index = nodes.size();
+    Node n = {1, 0, new_index, label};
+    nodes.insert({new_index, n});
+    return new_index;
 }
 
 const BDD_ID &Group7Manager::True() {
