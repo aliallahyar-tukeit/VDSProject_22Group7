@@ -19,9 +19,18 @@ void ManagerTester::TearDownTestSuite() {
 }
 
 void ManagerTester::SetUp() {
+    if (manager != nullptr)
+        delete manager;
+    manager = new ClassProject::Group7Manager;
 }
 
 void ManagerTester::TearDown() {
+}
+
+TEST_F(ManagerTester, fn_initialNodesMapSize) {
+    int size = manager->nodes.size();
+
+    ASSERT_EQ(size, 2);
 }
 
 TEST_F(ManagerTester, fn_True) {
