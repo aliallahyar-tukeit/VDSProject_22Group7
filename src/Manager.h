@@ -16,12 +16,14 @@ namespace ClassProject {
         std::string label;
 
         static Node True();
+
         static Node False();
     };
 
     class Group7Manager : public ClassProject::ManagerInterface {
     public:
         Group7Manager();
+
         ~Group7Manager() = default;
 
         // Creates a new variable with the given label and returns its ID
@@ -53,6 +55,7 @@ namespace ClassProject {
         // coFactorTrue(f ) = 1 = coFactorTrue(f, a)
         // coFactorTrue(f, c) = a + b
         BDD_ID coFactorTrue(BDD_ID f, BDD_ID x) override;
+
         BDD_ID coFactorTrue(BDD_ID f) override;
 
         // Returns the negative co-factor of the function represented by ID f w.r.t. variable x. The second parameter
@@ -61,6 +64,7 @@ namespace ClassProject {
         // coFactorFalse(f ) = b ∗ c = coFactorFalse(f, a)
         // coFactorFalse(f, c) = a
         BDD_ID coFactorFalse(BDD_ID f, BDD_ID x) override;
+
         BDD_ID coFactorFalse(BDD_ID f) override;
 
         // Returns the ID representing the negation of the given function
@@ -97,6 +101,26 @@ namespace ClassProject {
 
         // Returns the number of nodes currently existing in the unique table of the Manager class
         size_t uniqueTableSize() override;
+
+
+        // CUSTOM FUNCTIONS //////////////////////////////////////////
+
+        // Implements the if-then-else algorithm for the high part w.r.t the top variable
+        BDD_ID highSuccessor(BDD_ID topVariable, BDD_ID i, BDD_ID t, BDD_ID e);
+
+        // Implements the if-then-else algorithm for the low part w.r.t the top variable
+        BDD_ID lowSuccessor(BDD_ID topVariable, BDD_ID i, BDD_ID t, BDD_ID e);
+
+        // Returns the top variable among the boolean functions x, y and z. This method is primarily used in
+        // finding the top variable for an ite operator.
+        BDD_ID topVar(BDD_ID x, BDD_ID y, BDD_ID z);
+
+        // Returns true if the given functions is a terminal case for ite operator
+        bool isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e);
+
+        // Returns the id of the terminal case node
+        BDD_ID leafNode(BDD_ID i, BDD_ID t, BDD_ID e);
+
 
     public:
         std::map<BDD_ID, Node> nodes;
