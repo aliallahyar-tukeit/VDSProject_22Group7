@@ -315,3 +315,37 @@ TEST_F(ManagerTester, fn_NEG_OR_AB_HighId) { // Should be 0
     ClassProject::BDD_ID highIdForNEG_OR = manager->nodes.find(createdNodeNEG_OR_AB)->second.high;
     EXPECT_EQ(highIdForNEG_OR, 0);
 }
+
+TEST_F(ManagerTester, fn_NAND_AB_TopVariable) { // Should be 2
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdNodeNAND_AB = manager->nand2(createdA, createdB); // id is 4
+    ClassProject::BDD_ID topVariableIdForNAND = manager->topVar(createdNodeNAND_AB);
+    EXPECT_EQ(topVariableIdForNAND, 2);
+}
+
+TEST_F(ManagerTester, fn_NAND_AB_LowId) { // Should be 1
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdNodeNAND_AB = manager->nand2(createdA, createdB); // id is 4
+    ClassProject::BDD_ID lowIdForNAND = manager->nodes.find(createdNodeNAND_AB)->second.low;
+    EXPECT_EQ(lowIdForNAND, 1);
+}
+
+TEST_F(ManagerTester, fn_NAND_AB_HighId) { // Should be 5
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdNodeNAND_AB = manager->nand2(createdA, createdB); // id is 4
+    ClassProject::BDD_ID highIdForNAND = manager->nodes.find(createdNodeNAND_AB)->second.high;
+    EXPECT_EQ(highIdForNAND, 5);
+}
+
+TEST_F(ManagerTester, fn_NAND_NEGA_B_HighId) { // Should be 4
+    ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
+    ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
+    ClassProject::BDD_ID createdC = manager->createVar("c"); // id is 4
+    ClassProject::BDD_ID createdOR_AB = manager->or2(createdA, createdB); // id is 5
+    ClassProject::BDD_ID createdOR_AB_NAND_C = manager->nand2(createdOR_AB, createdC); // id is 6
+    ClassProject::BDD_ID highIdForNAND = manager->nodes.find(createdOR_AB_NAND_C)->second.high;
+    EXPECT_EQ(highIdForNAND, 4);
+}
