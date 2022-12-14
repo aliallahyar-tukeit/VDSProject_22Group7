@@ -10,8 +10,25 @@ Group7Manager::Group7Manager() {
     nodes[1] = Node::True();
 }
 
-BDD_ID Group7Manager::createVar(const std::string &label) {
-    return 0;
+bool operator==(const Node& firstNode, const Node& secondNode) // Check the equality of two nodes
+{
+    return (firstNode.high == secondNode.high) &&
+           (firstNode.low == secondNode.low) &&
+           (firstNode.top_var == secondNode.top_var);
+}
+
+bool operator!=(const Node& firstNode, const Node& secondNode) // Check the inequality of two nodes
+{
+    return (firstNode.high != secondNode.high) ||
+           (firstNode.low != secondNode.low) ||
+           (firstNode.top_var != secondNode.top_var);
+}
+
+BDD_ID Group7Manager::createVar(const std::string &label) { // Single variable functions
+    BDD_ID new_index = nodes.size();
+    Node n = {1, 0, new_index, label};
+    nodes.insert({new_index, n});
+    return new_index;
 }
 
 const BDD_ID &Group7Manager::True() {
@@ -23,10 +40,24 @@ const BDD_ID &Group7Manager::False() {
 }
 
 bool Group7Manager::isConstant(BDD_ID f) {
+
+    std::map<BDD_ID, Node>::iterator iter = nodes.find(f);
+
+    if (iter != nodes.end())
+        if (iter->second == Node::True() || iter->second == Node::False())
+            return true;
+
     return false;
 }
 
 bool Group7Manager::isVariable(BDD_ID x) {
+
+    std::map<BDD_ID, Node>::iterator iter = nodes.find(x);
+
+    if (iter != nodes.end())
+        if (iter->second.high <= 1 && iter->second.low <= 1 && iter->second.top_var >= 2)
+            return true;
+
     return false;
 }
 
