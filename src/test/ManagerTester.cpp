@@ -76,3 +76,21 @@ TEST_F(ManagerTester, fn_checkMapSize) { // It should be 3
 
     ASSERT_EQ(size, 3);
 }
+
+TEST_F(ManagerTester, fn_topVarIdForVariable) { // Should equal 2
+    ClassProject::BDD_ID createdA = manager->createVar("a");
+    ClassProject::BDD_ID topVarId = manager->topVar(createdA);
+    EXPECT_EQ(topVarId, 2);
+}
+
+TEST_F(ManagerTester, fn_topVarIdForFalse) {
+    ClassProject::Node falseNode = ClassProject::Node::False();
+    ClassProject::BDD_ID topVariableIdForFalse = falseNode.top_var;
+    EXPECT_EQ(topVariableIdForFalse, 0);
+}
+
+TEST_F(ManagerTester, fn_topVarIdForTrue) {
+    ClassProject::Node trueNode = ClassProject::Node::True();
+    ClassProject::BDD_ID topVariableIdForTrue = trueNode.top_var;
+    EXPECT_EQ(topVariableIdForTrue, 1);
+}
