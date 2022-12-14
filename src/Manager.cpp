@@ -61,8 +61,13 @@ bool Group7Manager::isVariable(BDD_ID x) {
     return false;
 }
 
-BDD_ID Group7Manager::topVar(BDD_ID f) {
-    return BDD_UNIMPLEMENTED;
+BDD_ID Group7Manager::topVar(BDD_ID f) { // Returns the top variable ID of the given node
+    BDD_ID id = BDD_UNIMPLEMENTED;
+    std::map<BDD_ID, Node>::iterator iter = nodes.find(f);
+    if (iter != nodes.end())
+        id = iter->second.top_var;
+
+    return id;
 }
 
 BDD_ID Group7Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) {
