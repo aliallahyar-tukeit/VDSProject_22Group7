@@ -346,19 +346,23 @@ BDD_ID Group7Manager::or2(BDD_ID a, BDD_ID b) {
 }
 
 BDD_ID Group7Manager::xor2(BDD_ID a, BDD_ID b) {
-    return BDD_UNIMPLEMENTED;
+    BDD_ID bPrime = neg(b);
+    return ite(a, bPrime, b);
 }
 
 BDD_ID Group7Manager::nand2(BDD_ID a, BDD_ID b) {
-    return BDD_UNIMPLEMENTED;
+    BDD_ID bPrime = neg(b);
+    return ite(a, bPrime, 1);
 }
 
 BDD_ID Group7Manager::nor2(BDD_ID a, BDD_ID b) {
-    return BDD_UNIMPLEMENTED;
+    BDD_ID bPrime = neg(b);
+    return ite(a, BDD_FALSE, bPrime);
 }
 
 BDD_ID Group7Manager::xnor2(BDD_ID a, BDD_ID b) {
-    return BDD_UNIMPLEMENTED;
+    BDD_ID bPrime = neg(b);
+    return ite(a, b, bPrime);
 }
 
 std::string Group7Manager::getTopVarName(const BDD_ID &root) {
