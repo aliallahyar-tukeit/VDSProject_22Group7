@@ -321,10 +321,11 @@ BDD_ID Group7Manager::neg(BDD_ID a) {
     return BDD_UNIMPLEMENTED;
 }
 
-BDD_ID Group7Manager::and2(BDD_ID a, BDD_ID b) {
-    return BDD_UNIMPLEMENTED;
-}
+BDD_ID Group7Manager::and2(BDD_ID a, BDD_ID b) { // a and b are not variables, they are functions
+    BDD_ID id = ite(a, b, BDD_FALSE);
 
+    return id;
+}
 BDD_ID Group7Manager::or2(BDD_ID a, BDD_ID b) {
     return ite(a, BDD_TRUE, b);
 }
