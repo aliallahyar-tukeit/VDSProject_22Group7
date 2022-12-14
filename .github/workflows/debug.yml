@@ -2,7 +2,8 @@ name: github_actions_gtest_example-Debug
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - '**'
   pull_request:
     branches: [ master ]
 
