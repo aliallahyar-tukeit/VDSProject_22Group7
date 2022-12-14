@@ -318,7 +318,22 @@ BDD_ID Group7Manager::coFactorFalse(BDD_ID f) {
 }
 
 BDD_ID Group7Manager::neg(BDD_ID a) {
-    return BDD_UNIMPLEMENTED;
+
+    BDD_ID id = BDD_UNIMPLEMENTED; // In case the id was not found in nodes
+    std::map<BDD_ID, Node>::iterator iter; // Iterator to find the related node
+
+    iter = nodes.find(a);
+    if (iter != nodes.end()) { // id was found
+        BDD_ID low = isConstant(iter->second.low) ? (iter->second.low == True() ? False() : True()) :
+                neg(iter->second.low);
+        BDD_ID high = isConstant(iter->second.high) ? (iter->second.high == True() ? False() : True()) :
+                neg(iter->second.high);
+        id = nodes.size();
+        Node new_node = {high, low, topVar(a), ""};
+        nodes.insert({id, new_node});
+    }
+
+    return id;
 }
 
 BDD_ID Group7Manager::and2(BDD_ID a, BDD_ID b) { // a and b are not variables, they are functions

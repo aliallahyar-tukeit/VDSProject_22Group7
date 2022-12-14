@@ -276,7 +276,7 @@ TEST_F(ManagerTester, fn_NEG_AND_AB_TopVariable) { // Should be 2
     ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 4
     ClassProject::BDD_ID createdNodeNEG_AND_AB = manager->neg(createdNodeAND_AB); // id is 5
     ClassProject::BDD_ID topVariableIdForNEG_AND = manager->topVar(createdNodeNEG_AND_AB);
-    EXPECT_EQ(topVariableIdForNEG_AND, 3);
+    EXPECT_EQ(topVariableIdForNEG_AND, 2);
 }
 
 TEST_F(ManagerTester, fn_NEG_AND_AB_LowId) { // Should be 1
@@ -288,13 +288,14 @@ TEST_F(ManagerTester, fn_NEG_AND_AB_LowId) { // Should be 1
     EXPECT_EQ(lowIdForNEG_AND, 1);
 }
 
-TEST_F(ManagerTester, fn_NEG_AND_AB_HighId) { // Should be 3
+TEST_F(ManagerTester, fn_NEG_AND_AB_HighId) { // Should be 5
     ClassProject::BDD_ID createdA = manager->createVar("a"); // id is 2
     ClassProject::BDD_ID createdB = manager->createVar("b"); // id is 3
     ClassProject::BDD_ID createdNodeAND_AB = manager->and2(createdA, createdB); // id is 4
-    ClassProject::BDD_ID createdNodeNEG_AND_AB = manager->neg(createdNodeAND_AB); // id is 5
+    // not b => id is 5
+    ClassProject::BDD_ID createdNodeNEG_AND_AB = manager->neg(createdNodeAND_AB); // id is 6
     ClassProject::BDD_ID highIdForNEG_AND = manager->nodes.find(createdNodeNEG_AND_AB)->second.high;
-    EXPECT_EQ(highIdForNEG_AND, 3);
+    EXPECT_EQ(highIdForNEG_AND, 5);
 }
 
 TEST_F(ManagerTester, fn_NEG_OR_AB_LowId) { // Should be 3
@@ -303,7 +304,7 @@ TEST_F(ManagerTester, fn_NEG_OR_AB_LowId) { // Should be 3
     ClassProject::BDD_ID createdNodeOR_AB = manager->or2(createdA, createdB); // id is 4
     ClassProject::BDD_ID createdNodeNEG_OR_AB = manager->neg(createdNodeOR_AB); // id is 5
     ClassProject::BDD_ID lowIdForNEG_OR = manager->nodes.find(createdNodeNEG_OR_AB)->second.low;
-    EXPECT_EQ(lowIdForNEG_OR, 3);
+    EXPECT_EQ(lowIdForNEG_OR, 5);
 }
 
 TEST_F(ManagerTester, fn_NEG_OR_AB_HighId) { // Should be 0
