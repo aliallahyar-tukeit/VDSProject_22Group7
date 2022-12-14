@@ -53,3 +53,31 @@ TEST_F(ManagerTester, fn_uniqueTableSize) {
 
     EXPECT_EQ(result, expected_result);
 }
+
+TEST_F(ManagerTester, fn_isConstant) {
+    ClassProject::BDD_ID id = 1;
+    bool isConstant = manager->isConstant(id);
+
+    ASSERT_EQ(isConstant, true);
+}
+
+TEST_F(ManagerTester, fn_isVariableFirstVersion) { // It does not exist
+    ClassProject::BDD_ID id = 2;
+    bool isVariable = manager->isVariable(id);
+
+    ASSERT_EQ(isVariable, false);
+}
+
+TEST_F(ManagerTester, fn_isVariableSecondVersion) { // It should exist and be a variable since we are creating one
+    ClassProject::BDD_ID createdId = manager->createVar("a");
+    bool isVariable = manager->isVariable(createdId);
+
+    ASSERT_EQ(isVariable, true);
+}
+
+TEST_F(ManagerTester, fn_checkMapSize) { // It should be 3
+    manager->createVar("a");
+    int size = manager->nodes.size();
+
+    ASSERT_EQ(size, 3);
+}
