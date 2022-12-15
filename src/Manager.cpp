@@ -365,14 +365,46 @@ BDD_ID Group7Manager::xnor2(BDD_ID a, BDD_ID b) {
     return ite(a, b, bPrime);
 }
 
+
 std::string Group7Manager::getTopVarName(const BDD_ID &root) {
-    return std::string();
+    auto iter = nodes.find(root);
+    if (iter != nodes.end()) {
+        const BDD_ID topVarIndex = topVar(iter->first);
+        return nodes.find(topVarIndex)->second.label;
+    }
+
+    return "";
 }
 
 void Group7Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) {
+    auto node = nodes.find(root);
+
+    if (node == nodes.end())
+        return;
+
+    auto& low = node->second.low;
+    auto& high = node->second.high;
+
+    nodes_of_root.insert(root);
+    nodes_of_root.insert(high);
+    nodes_of_root.insert(low);
+
+    if (!isConstant(high))
+        findNodes(high, nodes_of_root);
+
+    if (!isConstant(low))
+        findNodes(low, nodes_of_root);
 }
 
 void Group7Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) {
+    auto set = std::set<ClassProject::BDD_ID>();
+    findNodes(root, set);
+
+    for(auto& iter : set) {
+        if(isConstant(iter))
+            continue;
+        vars_of_root.insert(topVar(iter));
+    }
 }
 
 size_t Group7Manager::uniqueTableSize() {
