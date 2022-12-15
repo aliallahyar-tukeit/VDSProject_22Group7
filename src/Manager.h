@@ -121,6 +121,8 @@ namespace ClassProject {
         // Returns the id of the terminal case node
         BDD_ID leafNode(BDD_ID i, BDD_ID t, BDD_ID e);
 
+        // Prints all the nodes
+        void printNodes();
 
     public:
         std::map<BDD_ID, Node> nodes;

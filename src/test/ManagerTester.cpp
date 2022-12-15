@@ -404,6 +404,8 @@ TEST_F(ManagerTester, ConstructionExample) {
     // High = id7, Low = id8 and topV ar = id2 = a.
     auto f = manager->and2(a_or_b, c_and_d);
 
+    manager->printNodes();
+
     EXPECT_EQ(manager->uniqueTableSize(), 10);
     // intermediate entry
     EXPECT_EQ(manager->topVar(8), b);
