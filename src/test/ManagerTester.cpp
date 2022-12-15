@@ -349,3 +349,68 @@ TEST_F(ManagerTester, fn_NAND_NEGA_B_HighId) { // Should be 6
     ClassProject::BDD_ID highIdForNAND = manager->nodes.find(createdOR_AB_NAND_C)->second.high;
     EXPECT_EQ(highIdForNAND, 6);
 }
+
+TEST_F(ManagerTester, ConstructionExample) {
+    //1. Instantiate the Manager Class. This should also add 0 and 1 to the table.
+    EXPECT_EQ(manager->uniqueTableSize(), 2);
+    EXPECT_EQ(manager->isConstant(0), true);
+    EXPECT_EQ(manager->isConstant(1), true);
+
+    //2. Create variables a, b, c and d using the createVar(”a”) function. The unique table should now have 6 entries.
+    auto a = manager->createVar("a"); // id is 2
+    auto b = manager->createVar("b"); // id is 3
+    auto c = manager->createVar("c"); // id is 4
+    auto d = manager->createVar("d"); // id is 5
+
+    EXPECT_EQ(manager->uniqueTableSize(), 6);
+
+    // 3. Now, we call or2(a,b) which should internally call ite(a,1,b) = ite(id2,id1,id3). As this is not a terminal case,
+    // we proceed with the ite algorithm and determine the top variable of the given expressions. In our case, a is
+    // the top variable. The high and low successor of a + b are determined by
+    // highSuccessor = ite(coFactorTrue(id2, a) = 1, coFactorTrue(id1, a) = 1, coFactorTrue(id3, a) = b) = 1
+    // lowSuccessor = ite(coFactorFalse(id2, a) = 0, coFactorFalse(id1, a) = 1, coFactorFalse(id3, a) = b) = b
+    // Both ite calls are terminal cases and therefore immediately resolved. As no entry with High = 1, Low = b
+    // and topV ar = a exists, a new entry (id6) is added to the unique table.
+    auto a_or_b = manager->or2(a, b);
+
+    EXPECT_EQ(manager->uniqueTableSize(), 7);
+    EXPECT_EQ(manager->topVar(a_or_b), a);
+    EXPECT_EQ(manager->nodes[a_or_b].high, 1);
+    EXPECT_EQ(manager->nodes[a_or_b].low, b); // low = b
+
+    // 4. The next step is to call and2(c,d) which itself calls ite(c,d,0) = ite(id4,id5,id0). Again, no terminal case,
+    // hence we determine c as the top variable. The high and low successor of c ∗ d are determined, within ite, by
+    // highSuccessor = ite(coFactorTrue(id4, c) = 1, coFactorTrue(id5, c) = d, coFactorTrue(id0, c) = 0) = 1
+    // lowSuccessor = ite(coFactorFalse(id4, c) = 0, coFactorFalse(id5, c) = d, coFactorFalse(id0, c) = 0) = b
+    // Both ite calls are terminal cases and therefore immediately resolved. As no entry with High = d, Low = 0
+    // and topVar = c exists, a new entry (id7) is added to the unique table.
+    auto c_and_d = manager->and2(4, 5);
+
+    EXPECT_EQ(manager->uniqueTableSize(), 8);
+    EXPECT_EQ(manager->topVar(c_and_d), c);
+    EXPECT_EQ(manager->nodes[c_and_d].high, d);
+    EXPECT_EQ(manager->nodes[c_and_d].low, 0);
+
+    // 5. The last step is to call and2(a+b,c*d) = and2(id6,id7) which itself calls ite(id6,id7,id0). The top variable of
+    // id6 and id7 is a. After the co-factoring, the following ite calls will be made
+    // highSuccessor = ite(id1, id7, id0) = id7
+    // lowSuccessor = ite(id3, id7, id0)
+    // While the first call is a terminal case, the second one is not and we enter a recursion:
+    // 5The top variable of ite(id3,id7,id0) is b (id3) and its successors are
+    // highSuccessor′ = ite(id1, id7, id0) = id7
+    // lowSuccessor′ = ite(id0, id7, id0) = id0
+    // for which we add a new entry (id8) with High = id7, Low = id0 and topV ar = b = id3.
+    // The new entry will be the low successor of ite(id6,id7,id0). At last, we create the entry for our function with
+    // High = id7, Low = id8 and topV ar = id2 = a.
+    auto f = manager->and2(a_or_b, c_and_d);
+
+    EXPECT_EQ(manager->uniqueTableSize(), 10);
+    // intermediate entry
+    EXPECT_EQ(manager->topVar(8), b);
+    EXPECT_EQ(manager->nodes[8].high, c_and_d);
+    EXPECT_EQ(manager->nodes[8].low, 0);
+    // final entry
+    EXPECT_EQ(manager->topVar(f), a);
+    EXPECT_EQ(manager->nodes[f].high, c_and_d);
+    EXPECT_EQ(manager->nodes[f].low, 8);
+}
