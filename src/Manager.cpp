@@ -6,7 +6,7 @@ constexpr BDD_ID BDD_ERROR = 404;
 constexpr BDD_ID BDD_FALSE = 0;
 constexpr BDD_ID BDD_TRUE = 1;
 
-Group7Manager::Group7Manager() {
+Manager::Manager() {
     nodes[0] = Node::False();
     nodes[1] = Node::True();
 }
@@ -25,7 +25,7 @@ bool operator!=(const Node &firstNode, const Node &secondNode) // Check the ineq
            (firstNode.top_var != secondNode.top_var);
 }
 
-BDD_ID Group7Manager::createVar(const std::string &label) // Single variable functions
+BDD_ID Manager::createVar(const std::string &label) // Single variable functions
 {
     BDD_ID new_index = nodes.size();
     Node n = {1, 0, new_index, label};
@@ -33,27 +33,27 @@ BDD_ID Group7Manager::createVar(const std::string &label) // Single variable fun
     return new_index;
 }
 
-const BDD_ID &Group7Manager::True() {
+const BDD_ID &Manager::True() {
     return BDD_TRUE;
 }
 
-const BDD_ID &Group7Manager::False() {
+const BDD_ID &Manager::False() {
     return BDD_FALSE;
 }
 
-bool Group7Manager::isConstant(BDD_ID f) {
+bool Manager::isConstant(BDD_ID f) {
     return (nodes[f] == Node::True() || nodes[f] == Node::False());
 }
 
-bool Group7Manager::isVariable(BDD_ID x) {
+bool Manager::isVariable(BDD_ID x) {
     return (nodes[x].high <= 1 && nodes[x].low <= 1 && nodes[x].top_var >= 2);
 }
 
-BDD_ID Group7Manager::topVar(BDD_ID f) { // Returns the top variable ID of the given node
+BDD_ID Manager::topVar(BDD_ID f) { // Returns the top variable ID of the given node
     return nodes[f].top_var;
 }
 
-BDD_ID Group7Manager::highSuccessor(BDD_ID topVariable, BDD_ID iHigh, BDD_ID tHigh, BDD_ID eHigh) //
+BDD_ID Manager::highSuccessor(BDD_ID topVariable, BDD_ID iHigh, BDD_ID tHigh, BDD_ID eHigh) //
 {
     if (!isTerminalCase(iHigh, tHigh, eHigh)) {
         ite(iHigh, tHigh, eHigh);
@@ -63,7 +63,7 @@ BDD_ID Group7Manager::highSuccessor(BDD_ID topVariable, BDD_ID iHigh, BDD_ID tHi
     return leafNode(iHigh, tHigh, eHigh);
 }
 
-BDD_ID Group7Manager::leafNode(BDD_ID i, BDD_ID t, BDD_ID e) //
+BDD_ID Manager::leafNode(BDD_ID i, BDD_ID t, BDD_ID e) //
 {
     if (isConstant(i)) {
 
@@ -87,7 +87,7 @@ BDD_ID Group7Manager::leafNode(BDD_ID i, BDD_ID t, BDD_ID e) //
     }
 }
 
-BDD_ID Group7Manager::lowSuccessor(BDD_ID topVariable, BDD_ID iLow, BDD_ID tLow, BDD_ID eLow) //
+BDD_ID Manager::lowSuccessor(BDD_ID topVariable, BDD_ID iLow, BDD_ID tLow, BDD_ID eLow) //
 {
     if (!isTerminalCase(iLow, tLow, eLow)) {
         ite(iLow, tLow, eLow);
@@ -98,7 +98,7 @@ BDD_ID Group7Manager::lowSuccessor(BDD_ID topVariable, BDD_ID iLow, BDD_ID tLow,
 }
 
 
-bool Group7Manager::isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e) //
+bool Manager::isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e) //
 {
     return ((isConstant(i) && isConstant(t)) ||
             (isConstant(i) && isConstant(e)) ||
@@ -106,7 +106,7 @@ bool Group7Manager::isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e) //
     );
 }
 
-BDD_ID Group7Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z) //
+BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z) //
 {
     BDD_ID id = BDD_ERROR;
     BDD_ID top0, top1, top2;
@@ -138,7 +138,7 @@ BDD_ID Group7Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z) //
     return id;
 }
 
-BDD_ID Group7Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
+BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
 {
     BDD_ID idToBeRemoved = BDD_ERROR;
     BDD_ID idHigh, idLow, id = BDD_ERROR;
@@ -194,7 +194,7 @@ BDD_ID Group7Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
     return id;
 }
 
-BDD_ID Group7Manager::coFactorTrue(BDD_ID f, BDD_ID x) //
+BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x) //
 {
     if (isConstant(f) || isConstant(x) || nodes[f].top_var > x) {
         return f;
@@ -209,7 +209,7 @@ BDD_ID Group7Manager::coFactorTrue(BDD_ID f, BDD_ID x) //
     }
 }
 
-BDD_ID Group7Manager::coFactorFalse(BDD_ID f, BDD_ID x) //
+BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x) //
 {
     if (isConstant(f) || isConstant(x) || nodes[f].top_var > x) {
         return f;
@@ -224,7 +224,7 @@ BDD_ID Group7Manager::coFactorFalse(BDD_ID f, BDD_ID x) //
     }
 }
 
-BDD_ID Group7Manager::coFactorTrue(BDD_ID f) //
+BDD_ID Manager::coFactorTrue(BDD_ID f) //
 {
     if (isConstant(f))
         return f;
@@ -232,7 +232,7 @@ BDD_ID Group7Manager::coFactorTrue(BDD_ID f) //
         return nodes[f].high; // f.high
 }
 
-BDD_ID Group7Manager::coFactorFalse(BDD_ID f) //
+BDD_ID Manager::coFactorFalse(BDD_ID f) //
 {
     if (isConstant(f)) {
         return f;
@@ -241,7 +241,7 @@ BDD_ID Group7Manager::coFactorFalse(BDD_ID f) //
     }
 }
 
-BDD_ID Group7Manager::neg(BDD_ID a)  //
+BDD_ID Manager::neg(BDD_ID a)  //
 {
     BDD_ID low = isConstant(nodes[a].low) ? (nodes[a].low == True() ? False() : True()) :
                  neg(nodes[a].low);
@@ -255,41 +255,41 @@ BDD_ID Group7Manager::neg(BDD_ID a)  //
     return id;
 }
 
-BDD_ID Group7Manager::and2(BDD_ID a, BDD_ID b) { // a and b are not variables, they are functions
+BDD_ID Manager::and2(BDD_ID a, BDD_ID b) { // a and b are not variables, they are functions
     return ite(a, b, BDD_FALSE);
 }
 
-BDD_ID Group7Manager::or2(BDD_ID a, BDD_ID b) {
+BDD_ID Manager::or2(BDD_ID a, BDD_ID b) {
     return ite(a, BDD_TRUE, b);
 }
 
-BDD_ID Group7Manager::xor2(BDD_ID a, BDD_ID b) {
+BDD_ID Manager::xor2(BDD_ID a, BDD_ID b) {
     BDD_ID bPrime = neg(b);
     return ite(a, bPrime, b);
 }
 
-BDD_ID Group7Manager::nand2(BDD_ID a, BDD_ID b) {
+BDD_ID Manager::nand2(BDD_ID a, BDD_ID b) {
     BDD_ID bPrime = neg(b);
     return ite(a, bPrime, 1);
 }
 
-BDD_ID Group7Manager::nor2(BDD_ID a, BDD_ID b) {
+BDD_ID Manager::nor2(BDD_ID a, BDD_ID b) {
     BDD_ID bPrime = neg(b);
     return ite(a, BDD_FALSE, bPrime);
 }
 
-BDD_ID Group7Manager::xnor2(BDD_ID a, BDD_ID b) {
+BDD_ID Manager::xnor2(BDD_ID a, BDD_ID b) {
     BDD_ID bPrime = neg(b);
     return ite(a, b, bPrime);
 }
 
 
-std::string Group7Manager::getTopVarName(const BDD_ID &root) {
+std::string Manager::getTopVarName(const BDD_ID &root) {
     const BDD_ID topVarIndex = topVar(root);
     return nodes[topVarIndex].label;
 }
 
-void Group7Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) //
+void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) //
 {
     auto node = nodes.find(root);
 
@@ -310,7 +310,7 @@ void Group7Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_roo
         findNodes(low, nodes_of_root);
 }
 
-void Group7Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) //
+void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) //
 {
     auto set = std::set<ClassProject::BDD_ID>();
     findNodes(root, set);
@@ -322,7 +322,7 @@ void Group7Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
     }
 }
 
-size_t Group7Manager::uniqueTableSize() {
+size_t Manager::uniqueTableSize() {
     return nodes.size();
 }
 

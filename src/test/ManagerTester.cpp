@@ -4,11 +4,11 @@
 
 #include "ManagerTester.h"
 
-ClassProject::Group7Manager *ManagerTester::manager;
+ClassProject::Manager *ManagerTester::manager;
 
 void ManagerTester::SetUpTestSuite() {
     if (manager == nullptr) {
-        manager = new ClassProject::Group7Manager;
+        manager = new ClassProject::Manager;
     }
 }
 
@@ -21,7 +21,7 @@ void ManagerTester::TearDownTestSuite() {
 void ManagerTester::SetUp() {
     if (manager != nullptr)
         delete manager;
-    manager = new ClassProject::Group7Manager;
+    manager = new ClassProject::Manager;
 }
 
 void ManagerTester::TearDown() {

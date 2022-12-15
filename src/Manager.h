@@ -20,11 +20,11 @@ namespace ClassProject {
         static Node False();
     };
 
-    class Group7Manager : public ClassProject::ManagerInterface {
+    class Manager : public ClassProject::ManagerInterface {
     public:
-        Group7Manager();
+        Manager();
 
-        ~Group7Manager() = default;
+        ~Manager() = default;
 
         // Creates a new variable with the given label and returns its ID
         BDD_ID createVar(const std::string &label) override;

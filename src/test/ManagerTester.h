@@ -6,6 +6,7 @@
 #define VDSPROJECT_MANAGERTESTER_H
 
 #include "Tests.h"
+#include "ExtraTests.h"
 #include <gtest/gtest.h>
 #include "Manager.h"
 
@@ -23,7 +24,7 @@ public:
     // Will be called after EVERY unit test
     virtual void TearDown();
 
-    static ClassProject::Group7Manager* manager;
+    static ClassProject::Manager* manager;
 };
 
 
