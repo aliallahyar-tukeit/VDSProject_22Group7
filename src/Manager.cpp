@@ -94,8 +94,7 @@ BDD_ID Manager::lowSuccessor(BDD_ID topVariable, BDD_ID iLow, BDD_ID tLow, BDD_I
     return leafNode(iLow, tLow, eLow);
 }
 
-
-bool Manager::isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e) //
+bool Manager::isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e)
 {
     return ((isConstant(i) && isConstant(t)) ||
             (isConstant(i) && isConstant(e)) ||
@@ -103,7 +102,7 @@ bool Manager::isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e) //
     );
 }
 
-BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z) //
+BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z)
 {
     BDD_ID id = BDD_ERROR;
     BDD_ID top0, top1, top2;
@@ -115,12 +114,12 @@ BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z) //
         if ((isConstant(top1) && isVariable(top2)) || (isVariable(top1) && isConstant(top2))) {
             id = std::max(top1, top2);
         } else if ((isConstant(top1) && isConstant(top2))) {
-            id = std::min(top0, top1); // 1
-            id = std::min(id, top2); // 0
+            id = std::min(top0, top1);
+            id = std::min(id, top2);
         } else {
             id = std::min(top1, top2);
         }
-    } else { // x.top is a variable and not a constant
+    } else {
         if ((isConstant(top1) && isVariable(top2)) || (isVariable(top1) && isConstant(top2))) {
             id = std::max(top1, top2);
             id = std::min(id, top0);
@@ -141,7 +140,7 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
         return t;
     else if (i == 0)
         return e;
-    if (t == e)
+    else if (t == e)
         return t;
 
     BDD_ID topVariable = topVar(i, t, e);
@@ -158,9 +157,8 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
                          coFactorFalse(e, topVariable)
     );
 
-    /* We now are sure that our ite is a terminal case, so
-    * we now search through the map to find similar nodes,
-    * and we don't find any, add the new node to the nodes map */
+    if (idLow == idHigh)
+        return idLow;
 
     Node newNode = Node{idHigh, idLow, topVariable, ""};
 
@@ -175,7 +173,7 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
     return id;
 }
 
-BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x) //
+BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
 {
     if (isConstant(f) || isConstant(x) || nodes[f].top_var > x) {
         return f;
@@ -190,7 +188,7 @@ BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x) //
     }
 }
 
-BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x) //
+BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
 {
     if (isConstant(f) || isConstant(x) || nodes[f].top_var > x) {
         return f;
@@ -205,7 +203,7 @@ BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x) //
     }
 }
 
-BDD_ID Manager::coFactorTrue(BDD_ID f) //
+BDD_ID Manager::coFactorTrue(BDD_ID f)
 {
     if (isConstant(f))
         return f;
@@ -213,7 +211,7 @@ BDD_ID Manager::coFactorTrue(BDD_ID f) //
         return nodes[f].high; // f.high
 }
 
-BDD_ID Manager::coFactorFalse(BDD_ID f) //
+BDD_ID Manager::coFactorFalse(BDD_ID f)
 {
     if (isConstant(f)) {
         return f;
@@ -222,18 +220,8 @@ BDD_ID Manager::coFactorFalse(BDD_ID f) //
     }
 }
 
-BDD_ID Manager::neg(BDD_ID a)  //
+BDD_ID Manager::neg(BDD_ID a)
 {
-//    BDD_ID low = isConstant(nodes[a].low) ? (nodes[a].low == True() ? False() : True()) :
-//                 neg(nodes[a].low);
-//    BDD_ID high = isConstant(nodes[a].high) ? (nodes[a].high == True() ? False() : True()) :
-//                  neg(nodes[a].high);
-//
-//    auto id = nodes.size();
-//    Node new_node = {high, low, topVar(a), ""};
-//    nodes.insert({id, new_node});
-//
-//    return id;
     return ite(a, 0, 1);
 }
 
@@ -265,13 +253,12 @@ BDD_ID Manager::xnor2(BDD_ID a, BDD_ID b) {
     return ite(a, b, bPrime);
 }
 
-
 std::string Manager::getTopVarName(const BDD_ID &root) {
     const BDD_ID topVarIndex = topVar(root);
     return nodes[topVarIndex].label;
 }
 
-void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) //
+void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root)
 {
     auto node = nodes.find(root);
 
@@ -292,7 +279,7 @@ void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) //
         findNodes(low, nodes_of_root);
 }
 
-void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) //
+void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
 {
     auto set = std::set<ClassProject::BDD_ID>();
     findNodes(root, set);
@@ -308,23 +295,23 @@ size_t Manager::uniqueTableSize() {
     return nodes.size();
 }
 
-void Manager::printNodes() //
+void Manager::printNodes()
 {
     std::cout << "BDD_ID\tLabel\tHigh\tLow \tTopVar" << std::endl;
     for (const auto &[id, node]: nodes) {
         std::cout << id << "\t\t" << node.label;
-        if (node.label.length() <= 4)
+        if (node.label.length() < 4)
             std::cout << "\t\t";
-        else if (node.label.length() <= 7)
+        else if (node.label.length() >= 4)
             std::cout << '\t';
         std::cout << node.high << "\t\t" << node.low << "\t\t" << node.top_var << std::endl;
     }
 }
 
 Node Node::True() {
-    return Node{1, 1, 1};
+    return Node{1, 1, 1, "True"};
 }
 
 Node Node::False() {
-    return Node{0, 0, 0};
+    return Node{0, 0, 0, "False"};
 }
