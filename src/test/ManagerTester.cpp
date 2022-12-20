@@ -434,7 +434,16 @@ TEST_F(ManagerTester, fn_AND_OR_special_case) { // Should be 6
     ClassProject::BDD_ID createdAND_OR_AB_AND_CD = manager->and2(createdOR_AB, createdAND_CD);
     ClassProject::BDD_ID createdAND_AND_OR_AB_AND_CD_OR_EF = manager->and2(createdAND_OR_AB_AND_CD, createdOR_EF);
 
+    std::set<ClassProject::BDD_ID> nodesOfRoot;
+    manager->findNodes(12, nodesOfRoot);
+
     manager->printNodes();
+
+    std::cout << "\n\n\n\n--------------------\n\n\n\n";
+
+    for (auto id : nodesOfRoot) {
+        std::cout << id << "\n";
+    }
 
     EXPECT_EQ(manager->uniqueTableSize(), 17);
 }

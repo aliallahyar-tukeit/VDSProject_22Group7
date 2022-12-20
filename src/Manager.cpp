@@ -232,25 +232,15 @@ void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) {
     auto node = nodes.find(root);
     if (node != nodes.end()) {
 
-        nodes_of_root.insert(root);
-
-        if (isConstant(root)) {
-            nodes_of_root.insert(1);
-            nodes_of_root.insert(0);
-            return;
-        }
-
         auto &high = node->second.high;
         auto &low = node->second.low;
 
-        nodes_of_root.insert(high);
-        nodes_of_root.insert(low);
+        nodes_of_root.insert(root);
 
-        if (!isConstant(high))
+        if (!isConstant(root)) {
             findNodes(high, nodes_of_root);
-
-        if (!isConstant(low))
             findNodes(low, nodes_of_root);
+        }
     }
 }
 
