@@ -54,54 +54,6 @@ BDD_ID Manager::topVar(BDD_ID f) { // Returns the top variable ID of the given n
     return nodes[f].top_var;
 }
 
-BDD_ID Manager::highSuccessor(BDD_ID topVariable, BDD_ID iHigh, BDD_ID tHigh, BDD_ID eHigh) //
-{
-    if (!isTerminalCase(iHigh, tHigh, eHigh))
-        return ite(iHigh, tHigh, eHigh);
-
-    return leafNode(iHigh, tHigh, eHigh);
-}
-
-BDD_ID Manager::leafNode(BDD_ID i, BDD_ID t, BDD_ID e) //
-{
-    if (isConstant(i)) {
-
-        if (i == BDD_TRUE) {
-            return t;
-        } else {
-            return e;
-        }
-
-    } else {
-
-        if (t == BDD_TRUE && e == BDD_TRUE) {
-            return BDD_TRUE;
-        } else if (t == BDD_TRUE && e == BDD_FALSE) {
-            return i;
-        } else if (t == BDD_FALSE && e == BDD_TRUE) {
-            return neg(i);
-        } else {
-            return BDD_FALSE;
-        }
-    }
-}
-
-BDD_ID Manager::lowSuccessor(BDD_ID topVariable, BDD_ID iLow, BDD_ID tLow, BDD_ID eLow) //
-{
-    if (!isTerminalCase(iLow, tLow, eLow))
-        return ite(iLow, tLow, eLow);
-
-    return leafNode(iLow, tLow, eLow);
-}
-
-bool Manager::isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e)
-{
-    return ((isConstant(i) && isConstant(t)) ||
-            (isConstant(i) && isConstant(e)) ||
-            (isConstant(t) && isConstant(e))
-    );
-}
-
 BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z)
 {
     BDD_ID id = BDD_ERROR;
@@ -134,6 +86,24 @@ BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z)
     return id;
 }
 
+BDD_ID Manager::getHighSuccessor(BDD_ID f) {
+
+    auto node = nodes.find(f);
+    if (node != nodes.end())
+        return node->second.high;
+
+    return BDD_ERROR;
+}
+
+BDD_ID Manager::getLowSuccessor(BDD_ID f) {
+
+    auto node = nodes.find(f);
+    if (node != nodes.end())
+        return node->second.low;
+
+    return BDD_ERROR;
+}
+
 BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
 {
     if (i == 1)
@@ -145,13 +115,13 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
 
     BDD_ID topVariable = topVar(i, t, e);
 
-    auto idHigh = highSuccessor(topVariable,
+    auto idHigh = ite(
                            coFactorTrue(i, topVariable),
                            coFactorTrue(t, topVariable),
                            coFactorTrue(e, topVariable)
     );
 
-    auto idLow = lowSuccessor(topVariable,
+    auto idLow = ite(
                          coFactorFalse(i, topVariable),
                          coFactorFalse(t, topVariable),
                          coFactorFalse(e, topVariable)
@@ -205,19 +175,18 @@ BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
 
 BDD_ID Manager::coFactorTrue(BDD_ID f)
 {
-    if (isConstant(f))
-        return f;
-    else
-        return nodes[f].high; // f.high
+    if (!isConstant(f))
+        return nodes[f].high;
+
+    return f;
 }
 
 BDD_ID Manager::coFactorFalse(BDD_ID f)
 {
-    if (isConstant(f)) {
-        return f;
-    } else {
-        return nodes[f].low; // f.low
-    }
+    if (!isConstant(f))
+        return nodes[f].low;
+
+    return f;
 }
 
 BDD_ID Manager::neg(BDD_ID a)
@@ -258,25 +227,31 @@ std::string Manager::getTopVarName(const BDD_ID &root) {
     return nodes[topVarIndex].label;
 }
 
-void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root)
-{
+void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) {
+
     auto node = nodes.find(root);
+    if (node != nodes.end()) {
 
-    if (node == nodes.end())
-        return;
+        nodes_of_root.insert(root);
 
-    auto &low = node->second.low;
-    auto &high = node->second.high;
+        if (isConstant(root)) {
+            nodes_of_root.insert(1);
+            nodes_of_root.insert(0);
+            return;
+        }
 
-    nodes_of_root.insert(root);
-    nodes_of_root.insert(high);
-    nodes_of_root.insert(low);
+        auto &high = node->second.high;
+        auto &low = node->second.low;
 
-    if (!isConstant(high))
-        findNodes(high, nodes_of_root);
+        nodes_of_root.insert(high);
+        nodes_of_root.insert(low);
 
-    if (!isConstant(low))
-        findNodes(low, nodes_of_root);
+        if (!isConstant(high))
+            findNodes(high, nodes_of_root);
+
+        if (!isConstant(low))
+            findNodes(low, nodes_of_root);
+    }
 }
 
 void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
@@ -285,9 +260,8 @@ void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
     findNodes(root, set);
 
     for (auto &iter: set) {
-        if (isConstant(iter))
-            continue;
-        vars_of_root.insert(topVar(iter));
+        if (!isConstant(iter))
+            vars_of_root.insert(topVar(iter));
     }
 }
 

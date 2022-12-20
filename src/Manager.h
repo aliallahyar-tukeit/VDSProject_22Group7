@@ -44,6 +44,12 @@ namespace ClassProject {
         // Returns the top variable ID of the given node
         BDD_ID topVar(BDD_ID f) override;
 
+        // Returns the high successor ID of the given node
+        BDD_ID getHighSuccessor(BDD_ID f) override;
+
+        // Returns the low successor ID of the given node
+        BDD_ID getLowSuccessor(BDD_ID f) override;
+
         // Implements the if-then-else algorithm, which most of the following functions are based on. Returns the
         // existing or new node that represents the given expression. Please refer to the lecture slides for a detailed
         // description.
@@ -124,7 +130,7 @@ namespace ClassProject {
         // Prints all the nodes
         void printNodes();
 
-    public:
+    private:
         std::map<BDD_ID, Node> nodes;
     };
 }
