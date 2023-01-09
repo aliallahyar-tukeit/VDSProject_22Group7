@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Manager.h"
+#include "HashTableManager.h"
 
 using namespace ClassProject;
 constexpr BDD_ID BDD_UNIMPLEMENTED = 101;
@@ -140,6 +141,11 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
     auto id = nodes.size();
     nodes.insert({id, newNode});
 
+    if (!(isConstant(idLow) && isConstant(idHigh)))
+        // add them to computed table
+        hash_table[id] = newNode;
+//        htm->add_computed_table(id, &newNode);
+
     return id;
 }
 
@@ -270,6 +276,29 @@ void Manager::printNodes()
             std::cout << '\t';
         std::cout << node.high << "\t\t" << node.low << "\t\t" << node.top_var << std::endl;
     }
+
+    std::cout << "\n\n--------------------------\n\n" << std::endl;
+    std::cout << "Here is the computed table:\n" << std::endl;
+
+
+    printTable();
+}
+
+void Manager::printTable() {
+    auto node_to_string = [](const ClassProject::Node& node){
+        return "Node[ " +
+               std::to_string(node.high) + ", " +
+               std::to_string(node.low) + ", " +
+               std::to_string(node.top_var) + ", " +
+               node.label +
+               "]";
+    };
+
+    std::cout << "\n-------------------\n";
+    for (const auto &[key, node]: hash_table) {
+        std::cout << "Key: " << std::to_string(key) << ", Value: " << node_to_string(node) << '\n';
+    }
+    std::cout << "-------------------\n";
 }
 
 Node Node::True() {

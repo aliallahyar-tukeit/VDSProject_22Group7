@@ -7,6 +7,7 @@
 
 #include "ManagerInterface.h"
 #include <map>
+#include <unordered_map>
 
 namespace ClassProject {
     struct Node {
@@ -111,27 +112,18 @@ namespace ClassProject {
 
         // CUSTOM FUNCTIONS //////////////////////////////////////////
 
-        // Implements the if-then-else algorithm for the high part w.r.t the top variable
-        BDD_ID highSuccessor(BDD_ID topVariable, BDD_ID i, BDD_ID t, BDD_ID e);
-
-        // Implements the if-then-else algorithm for the low part w.r.t the top variable
-        BDD_ID lowSuccessor(BDD_ID topVariable, BDD_ID i, BDD_ID t, BDD_ID e);
-
         // Returns the top variable among the boolean functions x, y and z. This method is primarily used in
         // finding the top variable for an ite operator.
         BDD_ID topVar(BDD_ID x, BDD_ID y, BDD_ID z);
 
-        // Returns true if the given functions is a terminal case for ite operator
-        bool isTerminalCase(BDD_ID i, BDD_ID t, BDD_ID e);
-
-        // Returns the id of the terminal case node
-        BDD_ID leafNode(BDD_ID i, BDD_ID t, BDD_ID e);
-
         // Prints all the nodes
         void printNodes();
 
+        void printTable();
+
     private:
         std::map<BDD_ID, Node> nodes;
+        std::unordered_map<BDD_ID, Node> hash_table;
     };
 }
 
