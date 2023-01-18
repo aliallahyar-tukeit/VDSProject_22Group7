@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Manager.h"
-#include "HashTableManager.h"
+#include <inttypes.h>
 
 using namespace ClassProject;
 constexpr BDD_ID BDD_UNIMPLEMENTED = 101;
@@ -57,8 +57,7 @@ BDD_ID Manager::topVar(BDD_ID f) { // Returns the top variable ID of the given n
 
 BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z)
 {
-    BDD_ID id = BDD_ERROR;
-    BDD_ID top0, top1, top2;
+    BDD_ID id, top0, top1, top2;
     top0 = topVar(x);
     top1 = topVar(y);
     top2 = topVar(z);
@@ -105,7 +104,7 @@ BDD_ID Manager::getLowSuccessor(BDD_ID f) {
     return BDD_ERROR;
 }
 
-BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
+BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
 {
     if (i == 1)
         return t;
@@ -113,6 +112,13 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
         return e;
     else if (t == e)
         return t;
+
+    auto key = generateKey(i, t, e);
+
+    auto const iter = hash_table.find(key);
+    if (iter != hash_table.end()) {
+        return iter->second;
+    }
 
     BDD_ID topVariable = topVar(i, t, e);
 
@@ -142,9 +148,7 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) //
     nodes.insert({id, newNode});
 
     if (!(isConstant(idLow) && isConstant(idHigh)))
-        // add them to computed table
-        hash_table[id] = newNode;
-//        htm->add_computed_table(id, &newNode);
+        hash_table[key] = id;
 
     return id;
 }
@@ -285,7 +289,7 @@ void Manager::printNodes()
 }
 
 void Manager::printTable() {
-    auto node_to_string = [](const ClassProject::Node& node){
+    /*auto node_to_string = [](const ClassProject::Node& node){
         return "Node[ " +
                std::to_string(node.high) + ", " +
                std::to_string(node.low) + ", " +
@@ -298,7 +302,11 @@ void Manager::printTable() {
     for (const auto &[key, node]: hash_table) {
         std::cout << "Key: " << std::to_string(key) << ", Value: " << node_to_string(node) << '\n';
     }
-    std::cout << "-------------------\n";
+    std::cout << "-------------------\n";*/
+}
+
+uint64_t Manager::generateKey(BDD_ID i, BDD_ID t, BDD_ID e) {
+    return (i << 42) ^ (t << 21) ^ e;
 }
 
 Node Node::True() {

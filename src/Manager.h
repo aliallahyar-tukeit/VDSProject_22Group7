@@ -8,6 +8,7 @@
 #include "ManagerInterface.h"
 #include <map>
 #include <unordered_map>
+#include <inttypes.h>
 
 namespace ClassProject {
     struct Node {
@@ -19,6 +20,15 @@ namespace ClassProject {
         static Node True();
 
         static Node False();
+    };
+
+    class HashFunc {
+    public:
+        size_t operator()(const BDD_ID &i, const BDD_ID &t, const BDD_ID &e) const {
+            return std::hash<BDD_ID>{}(i << 21) ^
+                    std::hash<BDD_ID>{}(t >> 21) ^
+                    std::hash<BDD_ID>{}(e << 21);
+        }
     };
 
     class Manager : public ClassProject::ManagerInterface {
@@ -121,9 +131,12 @@ namespace ClassProject {
 
         void printTable();
 
+        uint64_t generateKey(BDD_ID i, BDD_ID t, BDD_ID e);
+
     private:
         std::map<BDD_ID, Node> nodes;
-        std::unordered_map<BDD_ID, Node> hash_table;
+        //std::unordered_map<const unsigned long, BDD_ID , HashFunc> hash_table;
+        std::unordered_map<uint64_t, BDD_ID> hash_table;
     };
 }
 
