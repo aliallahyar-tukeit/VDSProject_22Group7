@@ -9,8 +9,8 @@ constexpr BDD_ID BDD_FALSE = 0;
 constexpr BDD_ID BDD_TRUE = 1;
 
 Manager::Manager() {
-    nodes[0] = Node::False();
-    nodes[1] = Node::True();
+    nodes.push_back(Node::False());
+    nodes.push_back(Node::True());
 }
 
 bool operator==(const Node &firstNode, const Node &secondNode) // Check the equality of two nodes
@@ -31,7 +31,8 @@ BDD_ID Manager::createVar(const std::string &label) // Single variable functions
 {
     BDD_ID new_index = nodes.size();
     Node n = {1, 0, new_index, label};
-    nodes.insert({new_index, n});
+
+    nodes.push_back(n);
     return new_index;
 }
 
@@ -87,21 +88,11 @@ BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z)
 }
 
 BDD_ID Manager::getHighSuccessor(BDD_ID f) {
-
-    auto node = nodes.find(f);
-    if (node != nodes.end())
-        return node->second.high;
-
-    return BDD_ERROR;
+    return nodes[f].high;
 }
 
 BDD_ID Manager::getLowSuccessor(BDD_ID f) {
-
-    auto node = nodes.find(f);
-    if (node != nodes.end())
-        return node->second.low;
-
-    return BDD_ERROR;
+    return nodes[f].low;
 }
 
 BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
@@ -112,13 +103,17 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
         return e;
     else if (t == e)
         return t;
+    else if ((t == 1) && (e == 0))
+        return i;
 
     auto key = generateKey(i, t, e);
+    //std::cout << '\n' << i << ' ' << t << ' ' << e << ' ' << key;
 
-    auto const iter = hash_table.find(key);
-    if (iter != hash_table.end()) {
+    auto const iter = computed_table.find(key);
+    if (iter != computed_table.end()) {
         return iter->second;
     }
+    //std::cout << '.';
 
     BDD_ID topVariable = topVar(i, t, e);
 
@@ -139,16 +134,8 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
 
     Node newNode = Node{idHigh, idLow, topVariable, ""};
 
-    for (const auto &[id, node]: nodes) {
-        if (node == newNode)
-            return id;
-    }
-
-    auto id = nodes.size();
-    nodes.insert({id, newNode});
-
-    if (!(isConstant(idLow) && isConstant(idHigh)))
-        hash_table[key] = id;
+    auto id = findOrAdd(newNode);
+        computed_table[key] = id;
 
     return id;
 }
@@ -238,12 +225,9 @@ std::string Manager::getTopVarName(const BDD_ID &root) {
 }
 
 void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) {
-
-    auto node = nodes.find(root);
-    if (node != nodes.end()) {
-
-        auto &high = node->second.high;
-        auto &low = node->second.low;
+    auto& node = nodes[root];
+        auto &high = node.high;
+        auto &low = node.low;
 
         nodes_of_root.insert(root);
 
@@ -251,7 +235,6 @@ void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) {
             findNodes(high, nodes_of_root);
             findNodes(low, nodes_of_root);
         }
-    }
 }
 
 void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
@@ -272,7 +255,8 @@ size_t Manager::uniqueTableSize() {
 void Manager::printNodes()
 {
     std::cout << "BDD_ID\tLabel\tHigh\tLow \tTopVar" << std::endl;
-    for (const auto &[id, node]: nodes) {
+    for (auto id = 0; id < nodes.size(); id++) {
+        auto &node = nodes[id];
         std::cout << id << "\t\t" << node.label;
         if (node.label.length() < 4)
             std::cout << "\t\t";
@@ -299,7 +283,7 @@ void Manager::printTable() {
     };
 
     std::cout << "\n-------------------\n";
-    for (const auto &[key, node]: hash_table) {
+    for (const auto &[key, node]: unique_table) {
         std::cout << "Key: " << std::to_string(key) << ", Value: " << node_to_string(node) << '\n';
     }
     std::cout << "-------------------\n";*/
@@ -307,6 +291,18 @@ void Manager::printTable() {
 
 uint64_t Manager::generateKey(BDD_ID i, BDD_ID t, BDD_ID e) {
     return (i << 42) ^ (t << 21) ^ e;
+}
+
+size_t Manager::findOrAdd(Node node) {
+    auto key = generateKey(node.high, node.low, node.top_var);
+    auto it = unique_table.find(key);
+
+    if (it != unique_table.end())
+        return it->second;
+    auto id = nodes.size();
+    unique_table.insert({key, id});
+    nodes.push_back(node);
+    return id;
 }
 
 Node Node::True() {

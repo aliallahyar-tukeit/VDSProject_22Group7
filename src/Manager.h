@@ -9,6 +9,7 @@
 #include <map>
 #include <unordered_map>
 #include <inttypes.h>
+#include <vector>
 
 namespace ClassProject {
     struct Node {
@@ -20,6 +21,8 @@ namespace ClassProject {
         static Node True();
 
         static Node False();
+
+
     };
 
     class HashFunc {
@@ -131,12 +134,16 @@ namespace ClassProject {
 
         void printTable();
 
-        uint64_t generateKey(BDD_ID i, BDD_ID t, BDD_ID e);
+        static uint64_t generateKey(BDD_ID a, BDD_ID b, BDD_ID c);
 
     private:
-        std::map<BDD_ID, Node> nodes;
-        //std::unordered_map<const unsigned long, BDD_ID , HashFunc> hash_table;
-        std::unordered_map<uint64_t, BDD_ID> hash_table;
+        std::vector<Node> nodes;
+        //std::unordered_map<const unsigned long, BDD_ID , HashFunc> unique_table;
+
+        std::unordered_map<uint64_t, size_t> unique_table;
+        std::unordered_map<uint64_t, BDD_ID> computed_table;
+
+        size_t findOrAdd(Node node);
     };
 }
 
