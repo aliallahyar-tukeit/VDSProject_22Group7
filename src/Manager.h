@@ -132,18 +132,16 @@ namespace ClassProject {
         // Prints all the nodes
         void printNodes();
 
-        void printTable();
-
+        // Generates a hash key from the three BDD ids to use for looking up items within the hash tables
         static uint64_t generateKey(BDD_ID a, BDD_ID b, BDD_ID c);
 
-    private:
-        std::vector<Node> nodes;
-        //std::unordered_map<const unsigned long, BDD_ID , HashFunc> unique_table;
-
-        std::unordered_map<uint64_t, size_t> unique_table;
-        std::unordered_map<uint64_t, BDD_ID> computed_table;
-
+        // Guaranties uniqueness and returns the id of the node found or generated
         size_t findOrAdd(Node node);
+
+    private:
+        std::vector<Node> nodes; // List of the nodes
+        std::unordered_map<uint64_t, size_t> unique_table; // Links a node to its corresponding id in the "nodes" vector
+        std::unordered_map<uint64_t, BDD_ID> computed_table; // Links ITE to its output
     };
 }
 

@@ -31,7 +31,6 @@ BDD_ID Manager::createVar(const std::string &label) // Single variable functions
 {
     BDD_ID new_index = nodes.size();
     Node n = {1, 0, new_index, label};
-
     nodes.push_back(n);
     return new_index;
 }
@@ -56,8 +55,7 @@ BDD_ID Manager::topVar(BDD_ID f) { // Returns the top variable ID of the given n
     return nodes[f].top_var;
 }
 
-BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z)
-{
+BDD_ID Manager::topVar(BDD_ID x, BDD_ID y, BDD_ID z) {
     BDD_ID id, top0, top1, top2;
     top0 = topVar(x);
     top1 = topVar(y);
@@ -95,8 +93,7 @@ BDD_ID Manager::getLowSuccessor(BDD_ID f) {
     return nodes[f].low;
 }
 
-BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
-{
+BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) {
     if (i == 1)
         return t;
     else if (i == 0)
@@ -107,26 +104,24 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
         return i;
 
     auto key = generateKey(i, t, e);
-    //std::cout << '\n' << i << ' ' << t << ' ' << e << ' ' << key;
+    auto iter = computed_table.find(key);
 
-    auto const iter = computed_table.find(key);
     if (iter != computed_table.end()) {
         return iter->second;
     }
-    //std::cout << '.';
 
     BDD_ID topVariable = topVar(i, t, e);
 
     auto idHigh = ite(
-                           coFactorTrue(i, topVariable),
-                           coFactorTrue(t, topVariable),
-                           coFactorTrue(e, topVariable)
+            coFactorTrue(i, topVariable),
+            coFactorTrue(t, topVariable),
+            coFactorTrue(e, topVariable)
     );
 
     auto idLow = ite(
-                         coFactorFalse(i, topVariable),
-                         coFactorFalse(t, topVariable),
-                         coFactorFalse(e, topVariable)
+            coFactorFalse(i, topVariable),
+            coFactorFalse(t, topVariable),
+            coFactorFalse(e, topVariable)
     );
 
     if (idLow == idHigh)
@@ -135,13 +130,12 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
     Node newNode = Node{idHigh, idLow, topVariable, ""};
 
     auto id = findOrAdd(newNode);
-        computed_table[key] = id;
+    computed_table[key] = id;
 
     return id;
 }
 
-BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
-{
+BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x) {
     if (isConstant(f) || isConstant(x) || nodes[f].top_var > x) {
         return f;
     } else {
@@ -155,8 +149,7 @@ BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
     }
 }
 
-BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
-{
+BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x) {
     if (isConstant(f) || isConstant(x) || nodes[f].top_var > x) {
         return f;
     } else {
@@ -170,24 +163,21 @@ BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
     }
 }
 
-BDD_ID Manager::coFactorTrue(BDD_ID f)
-{
+BDD_ID Manager::coFactorTrue(BDD_ID f) {
     if (!isConstant(f))
         return nodes[f].high;
 
     return f;
 }
 
-BDD_ID Manager::coFactorFalse(BDD_ID f)
-{
+BDD_ID Manager::coFactorFalse(BDD_ID f) {
     if (!isConstant(f))
         return nodes[f].low;
 
     return f;
 }
 
-BDD_ID Manager::neg(BDD_ID a)
-{
+BDD_ID Manager::neg(BDD_ID a) {
     return ite(a, 0, 1);
 }
 
@@ -225,20 +215,19 @@ std::string Manager::getTopVarName(const BDD_ID &root) {
 }
 
 void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) {
-    auto& node = nodes[root];
-        auto &high = node.high;
-        auto &low = node.low;
+    auto &node = nodes[root];
+    auto &high = node.high;
+    auto &low = node.low;
 
-        nodes_of_root.insert(root);
+    nodes_of_root.insert(root);
 
-        if (!isConstant(root)) {
-            findNodes(high, nodes_of_root);
-            findNodes(low, nodes_of_root);
-        }
+    if (!isConstant(root)) {
+        findNodes(high, nodes_of_root);
+        findNodes(low, nodes_of_root);
+    }
 }
 
-void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
-{
+void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) {
     auto set = std::set<ClassProject::BDD_ID>();
     findNodes(root, set);
 
@@ -252,8 +241,7 @@ size_t Manager::uniqueTableSize() {
     return nodes.size();
 }
 
-void Manager::printNodes()
-{
+void Manager::printNodes() {
     std::cout << "BDD_ID\tLabel\tHigh\tLow \tTopVar" << std::endl;
     for (auto id = 0; id < nodes.size(); id++) {
         auto &node = nodes[id];
@@ -268,25 +256,6 @@ void Manager::printNodes()
     std::cout << "\n\n--------------------------\n\n" << std::endl;
     std::cout << "Here is the computed table:\n" << std::endl;
 
-
-    printTable();
-}
-
-void Manager::printTable() {
-    /*auto node_to_string = [](const ClassProject::Node& node){
-        return "Node[ " +
-               std::to_string(node.high) + ", " +
-               std::to_string(node.low) + ", " +
-               std::to_string(node.top_var) + ", " +
-               node.label +
-               "]";
-    };
-
-    std::cout << "\n-------------------\n";
-    for (const auto &[key, node]: unique_table) {
-        std::cout << "Key: " << std::to_string(key) << ", Value: " << node_to_string(node) << '\n';
-    }
-    std::cout << "-------------------\n";*/
 }
 
 uint64_t Manager::generateKey(BDD_ID i, BDD_ID t, BDD_ID e) {
