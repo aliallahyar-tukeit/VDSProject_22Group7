@@ -135,7 +135,7 @@ namespace ClassProject {
         // Generates a hash key from the three BDD ids to use for looking up items within the hash tables
         static uint64_t generateKey(BDD_ID a, BDD_ID b, BDD_ID c);
 
-        // Guaranties uniqueness and returns the id of the node found or generated
+        // Guaranties uniqueness and returns the id of the node found or created
         size_t findOrAdd(Node node);
 
     private:
