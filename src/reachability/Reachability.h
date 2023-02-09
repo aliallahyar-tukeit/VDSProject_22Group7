@@ -20,6 +20,7 @@ namespace ClassProject {
         std::vector<BDD_ID> transition_functions;
         std::vector<bool> initial_state;
         BDD_ID C_Relation;
+        bool needs_update;
         void getReachableStates();
     };
 

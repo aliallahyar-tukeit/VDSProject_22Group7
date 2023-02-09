@@ -11,6 +11,7 @@ void Reachability::setInitState(const std::vector<bool> &stateVector) {
     }
 
     initial_state = stateVector;
+    needs_update = true;
 }
 
 void Reachability::setTransitionFunctions(const std::vector<BDD_ID> &functions) {
@@ -18,10 +19,14 @@ void Reachability::setTransitionFunctions(const std::vector<BDD_ID> &functions) 
         throw std::runtime_error("Too few transition functions!");
     }
 
+    if(*std::max_element(functions.begin(), functions.end()) >= Manager::uniqueTableSize()) {
+        throw std::runtime_error("Invalid BDD_ID");
+    }
+
     transition_functions = functions;
 
     if (initial_state.size() == transition_functions.size()) {
-        getReachableStates();
+        needs_update = true;
     }
 }
 
@@ -36,6 +41,10 @@ bool Reachability::isReachable(const std::vector<bool> &stateVector) {
     if (transition_functions.size() != states.size())
         throw std::runtime_error("Too few transition functions already defined!");
 
+    if (needs_update) {
+        getReachableStates();
+        needs_update = false;
+    }
     BDD_ID fixed_point = C_Relation;
     for (size_t i = 0; i < states.size(); i++) {
         fixed_point = (stateVector[i]) ? coFactorTrue(fixed_point, states[i]) : coFactorFalse(fixed_point, states[i]);
@@ -105,7 +114,7 @@ const std::vector<BDD_ID> &Reachability::getStates() const {
     return states;
 }
 
-Reachability::Reachability(unsigned int size) : ReachabilityInterface(size) {
+Reachability::Reachability(unsigned int size) : ReachabilityInterface(size), needs_update(true) {
 
     if (size == 0) {
         throw std::runtime_error("State vector cannot be empty");
